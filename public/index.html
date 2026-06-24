@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>securA — Website Security Score Checker</title>
+  <meta name="description" content="securA: Deep-scan any website's security — HTTP headers, TLS, mixed content, cookies, DOM integrity — and get a score out of 100 with actionable tips." />
+
+  <!-- Google Fonts — Inter for clean modern typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ── PAGE WRAPPER ─────────────────────────────────────────────────────── -->
+  <div class="page-wrapper">
+
+    <!-- ── HEADER ──────────────────────────────────────────────────────────── -->
+    <header class="site-header">
+      <div class="header-logo-wrap">
+        <img src="logo.png" alt="securA logo" class="header-logo" />
+      </div>
+      <h1 class="site-title">secur<span class="title-a">A</span></h1>
+      <p class="site-subtitle">
+        Deep-scan any website's security: headers, TLS, mixed content,
+        DOM&nbsp;integrity, and cookie flags — scored out of&nbsp;100.
+      </p>
+    </header>
+
+    <!-- ── MAIN CONTENT ─────────────────────────────────────────────────────── -->
+    <main>
+
+      <!-- SCAN FORM CARD -->
+      <section class="card scan-card" aria-label="URL input form">
+        <form id="scan-form" novalidate>
+          <label for="url-input" class="input-label">Website URL</label>
+          <div class="input-row">
+            <input
+              id="url-input"
+              type="url"
+              class="url-input"
+              placeholder="https://example.com"
+              autocomplete="off"
+              spellcheck="false"
+              aria-describedby="url-hint"
+              required
+            />
+            <button id="scan-btn" type="submit" class="btn-scan">
+              <span class="btn-text">Check Security</span>
+              <span class="btn-spinner" aria-hidden="true"></span>
+            </button>
+          </div>
+          <p id="url-hint" class="input-hint">
+            Enter the full URL including <code>https://</code>
+          </p>
+        </form>
+      </section>
+
+      <!-- ANALYSIS NOTICE -->
+      <div class="analysis-badge">
+        <img src="logo.png" alt="" class="badge-logo" />
+        <span>securA headless analysis — checks Networking · DOM · Cookies · TLS · Headers</span>
+      </div>
+
+      <!-- ERROR MESSAGE AREA (hidden by default) -->
+      <div id="error-area" class="error-area" role="alert" aria-live="polite" hidden>
+        <span class="error-icon" aria-hidden="true">⚠️</span>
+        <span id="error-message" class="error-text">Something went wrong.</span>
+      </div>
+
+      <!-- LOADING INDICATOR (hidden by default) -->
+      <div id="loading-area" class="loading-area" role="status" aria-live="polite" hidden>
+        <img src="logo.png" alt="securA scanning" class="loading-logo" />
+        <div class="loading-dots">
+          <span></span><span></span><span></span>
+        </div>
+        <p id="loading-text" class="loading-text">Launching headless browser…</p>
+        <p class="loading-subtext">securA deep scans may take up to 20 seconds</p>
+      </div>
+
+      <!-- RESULTS SECTION (hidden until a scan completes) -->
+      <section id="results-section" class="results-section" aria-label="Scan results" hidden>
+
+        <!-- SCORE GAUGE + BADGE -->
+        <div class="card score-card">
+          <div class="score-top">
+
+            <!-- SVG Circular Progress Ring -->
+            <div class="gauge-wrapper" role="img" aria-label="Security score gauge">
+              <svg class="gauge-svg" viewBox="0 0 160 160" aria-hidden="true">
+                <circle class="gauge-track" cx="80" cy="80" r="64" fill="none" stroke-width="12" />
+                <circle
+                  id="gauge-progress"
+                  class="gauge-progress"
+                  cx="80" cy="80" r="64"
+                  fill="none"
+                  stroke-width="12"
+                  stroke-linecap="round"
+                  transform="rotate(-90 80 80)"
+                />
+              </svg>
+              <div class="gauge-label">
+                <span id="score-number" class="score-number">0</span>
+                <span class="score-max">/100</span>
+              </div>
+            </div>
+
+            <!-- Risk level badge and scanned URL -->
+            <div class="score-meta">
+              <div class="score-brand">
+                <img src="logo.png" alt="securA" class="score-brand-logo" />
+                <span class="score-brand-name">secur<span class="title-a">A</span></span>
+              </div>
+              <div id="status-badge" class="status-badge" aria-live="polite">—</div>
+              <p class="score-caption">Security Score</p>
+              <p id="scanned-url" class="scanned-url"></p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ISSUES CARD -->
+        <div class="card detail-card">
+          <h2 class="detail-title">
+            <span class="detail-icon" aria-hidden="true">🚨</span> Issues Found
+          </h2>
+          <ul id="issues-list" class="detail-list issues-list" aria-label="List of security issues"></ul>
+        </div>
+
+        <!-- SUGGESTIONS CARD -->
+        <div class="card detail-card">
+          <h2 class="detail-title">
+            <span class="detail-icon" aria-hidden="true">💡</span> Suggestions
+          </h2>
+          <ul id="suggestions-list" class="detail-list suggestions-list" aria-label="List of improvement suggestions"></ul>
+        </div>
+
+      </section>
+
+      <!-- DETAILED ANALYSIS SECTION -->
+      <section id="details-section" class="details-section" aria-label="Detailed analysis" hidden></section>
+
+    </main>
+
+    <!-- ── FOOTER ──────────────────────────────────────────────────────────── -->
+    <footer class="site-footer">
+      <img src="logo.png" alt="securA" class="footer-logo" />
+      <p class="footer-brand">secur<span class="title-a">A</span></p>
+      <p>Checks: HTTPS · CSP · X-Frame-Options · HSTS · Mixed Content · SRI · Cookies · TLS</p>
+    </footer>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

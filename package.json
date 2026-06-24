@@ -1,0 +1,22 @@
+{
+  "name": "secura",
+  "version": "1.0.0",
+  "description": "securA — Deep-scan any website's security using headless browser analysis and score it out of 100.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "puppeteer": "^25.2.0"
+  },
+  "keywords": [
+    "security",
+    "headers",
+    "checker"
+  ],
+  "author": "",
+  "license": "ISC"
+}

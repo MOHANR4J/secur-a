@@ -1,0 +1,629 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   style.css — Website Security Score Checker
+   Dark-themed, modern design using CSS custom properties.
+   Fully responsive down to 320 px wide.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1.  DESIGN TOKENS (CSS custom properties) ─────────────────────────────── */
+:root {
+  /* Colour palette */
+  --bg-page:        #0d1117;   /* Near-black page background */
+  --bg-card:        #161b22;   /* Slightly lighter card surface */
+  --bg-card-hover:  #1c2330;
+  --border:         #30363d;   /* Subtle card border */
+  --border-focus:   #58a6ff;
+
+  --text-primary:   #e6edf3;
+  --text-secondary: #8b949e;
+  --text-code:      #79c0ff;
+
+  --accent-blue:    #58a6ff;
+  --accent-glow:    rgba(88, 166, 255, 0.25);
+
+  /* Risk colours */
+  --low-bg:         rgba(46, 160, 67, 0.15);
+  --low-border:     #2ea043;
+  --low-text:       #3fb950;
+  --low-ring:       #3fb950;
+
+  --medium-bg:      rgba(210, 153, 34, 0.15);
+  --medium-border:  #d29922;
+  --medium-text:    #e3b341;
+  --medium-ring:    #e3b341;
+
+  --high-bg:        rgba(248, 81, 73, 0.15);
+  --high-border:    #f85149;
+  --high-text:      #ff7b72;
+  --high-ring:      #ff7b72;
+
+  /* Typography */
+  --font-sans:  'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono:  'Fira Code', 'Consolas', monospace;
+
+  /* Spacing */
+  --radius-sm:  6px;
+  --radius-md:  12px;
+  --radius-lg:  16px;
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.3);
+
+  /* Gauge */
+  --gauge-circumference: 402.12px; /* 2 * π * 64 ≈ 402.12 */
+}
+
+/* ── 2.  RESET & BASE ───────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Ensure [hidden] attribute works correctly even when display: flex is set on the element */
+[hidden] {
+  display: none !important;
+}
+
+/* ── 3.  PAGE LAYOUT ────────────────────────────────────────────────────────── */
+.page-wrapper {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+
+/* ── 4.  HEADER ─────────────────────────────────────────────────────────────── */
+.site-header {
+  text-align: center;
+  padding: 3rem 0 2rem;
+}
+
+.header-logo-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.header-logo {
+  width: 110px;
+  height: 110px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 24px rgba(88,166,255,0.5));
+  animation: float 3.5s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0);    }
+  50%       { transform: translateY(-6px); }
+}
+
+.site-title {
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #e6edf3;
+  margin-bottom: 0.75rem;
+}
+
+/* The 'A' in securA rendered in teal */
+.title-a {
+  color: #2dc0c0;
+}
+
+.site-subtitle {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* ── 5.  CARD ───────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 1.75rem;
+  transition: border-color 0.2s;
+}
+
+.card:hover { border-color: #3d444d; }
+
+/* ── 6.  SCAN FORM ──────────────────────────────────────────────────────────── */
+.scan-card { margin-bottom: 1.25rem; }
+
+.input-label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 0.6rem;
+}
+
+.input-row {
+  display: flex;
+  gap: 0.625rem;
+  align-items: stretch;
+}
+
+.url-input {
+  flex: 1;
+  background: var(--bg-page);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  padding: 0.7rem 1rem;
+  outline: none;
+  transition: border-color 0.18s, box-shadow 0.18s;
+  min-width: 0; /* allow flex shrinking */
+}
+
+.url-input::placeholder { color: #484f58; }
+
+.url-input:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.btn-scan {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--accent-blue);
+  color: #0d1117;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.7rem 1.4rem;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.1s, box-shadow 0.18s;
+  white-space: nowrap;
+}
+
+.btn-scan:hover  { background: #79c0ff; box-shadow: 0 0 16px var(--accent-glow); }
+.btn-scan:active { transform: scale(0.97); }
+.btn-scan:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+/* Inline button spinner */
+.btn-spinner {
+  display: none;
+  width: 16px;
+  height: 16px;
+  border: 2.5px solid rgba(13,17,23,0.35);
+  border-top-color: #0d1117;
+  border-radius: 50%;
+  animation: spin 0.65s linear infinite;
+}
+
+.btn-scan.loading .btn-spinner { display: block; }
+.btn-scan.loading .btn-text    { opacity: 0.7;   }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.input-hint {
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.input-hint code {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-code);
+  background: rgba(88,166,255,0.1);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+}
+
+/* ── 7.  ERROR AREA ─────────────────────────────────────────────────────────── */
+.error-area {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  background: rgba(248,81,73,0.1);
+  border: 1px solid #f85149;
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  animation: fadeIn 0.25s ease;
+}
+
+.error-icon { font-size: 1.1rem; flex-shrink: 0; padding-top: 2px; }
+.error-text { font-size: 0.9375rem; color: #ff7b72; line-height: 1.5; }
+
+/* ── 8.  LOADING INDICATOR ──────────────────────────────────────────────────── */
+.loading-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2rem 0;
+  animation: fadeIn 0.2s ease;
+}
+
+.loading-logo {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  animation: pulse-logo 2s ease-in-out infinite;
+}
+
+@keyframes pulse-logo {
+  0%, 100% { opacity: 1;   transform: scale(1);    filter: drop-shadow(0 0 10px rgba(88,166,255,0.4)); }
+  50%       { opacity: 0.8; transform: scale(1.06); filter: drop-shadow(0 0 22px rgba(88,166,255,0.8)); }
+}
+
+.loading-text {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  transition: opacity 0.3s ease;
+  min-height: 1.4em;
+  text-align: center;
+}
+
+.loading-subtext {
+  font-size: 0.8rem;
+  color: #484f58;
+  text-align: center;
+}
+
+/* Three animated dots */
+.loading-dots {
+  display: flex;
+  gap: 7px;
+}
+
+.loading-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent-blue);
+  animation: bounce 1.2s ease-in-out infinite;
+  opacity: 0.7;
+}
+.loading-dots span:nth-child(1) { animation-delay: 0s;   }
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0.7); opacity: 0.5; }
+  40%            { transform: scale(1.1); opacity: 1;   }
+}
+
+/* ── 9.  RESULTS SECTION ────────────────────────────────────────────────────── */
+.results-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  animation: fadeIn 0.35s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* ── 10.  SCORE CARD ────────────────────────────────────────────────────────── */
+.score-card { padding: 2rem; }
+
+.score-top {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+/* SVG gauge */
+.gauge-wrapper {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  flex-shrink: 0;
+}
+
+.gauge-svg { width: 100%; height: 100%; }
+
+.gauge-track   { stroke: #21262d; }
+.gauge-progress {
+  stroke: var(--accent-blue);
+  stroke-dasharray: var(--gauge-circumference);
+  stroke-dashoffset: var(--gauge-circumference); /* starts empty */
+  transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1),
+              stroke 0.4s ease;
+}
+
+/* Score number inside the ring */
+.gauge-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0;
+  line-height: 1;
+}
+
+.score-number {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+  transition: color 0.4s;
+}
+
+.score-max {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Right side meta */
+.score-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.score-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.score-brand-logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.score-brand-name {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #e6edf3;
+  letter-spacing: -0.02em;
+}
+
+.score-caption {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.scanned-url {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  word-break: break-all;
+  font-family: var(--font-mono);
+}
+
+/* ── 11.  STATUS BADGE ──────────────────────────────────────────────────────── */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 20px;
+  padding: 0.3rem 1rem;
+  border: 1.5px solid transparent;
+  width: fit-content;
+  letter-spacing: 0.01em;
+  transition: background 0.3s, color 0.3s, border-color 0.3s;
+}
+
+/* Badge variants — class set by script.js */
+.status-badge.low-risk {
+  background: var(--low-bg);
+  border-color: var(--low-border);
+  color: var(--low-text);
+}
+.status-badge.medium-risk {
+  background: var(--medium-bg);
+  border-color: var(--medium-border);
+  color: var(--medium-text);
+}
+.status-badge.high-risk {
+  background: var(--high-bg);
+  border-color: var(--high-border);
+  color: var(--high-text);
+}
+
+/* Ring colour also changes based on risk — script.js sets a CSS var */
+.gauge-progress.low-risk    { stroke: var(--low-ring);    }
+.gauge-progress.medium-risk { stroke: var(--medium-ring); }
+.gauge-progress.high-risk   { stroke: var(--high-ring);   }
+
+/* Score number colour */
+.score-number.low-risk    { color: var(--low-text);    }
+.score-number.medium-risk { color: var(--medium-text); }
+.score-number.high-risk   { color: var(--high-text);   }
+
+/* ── 12.  DETAIL CARDS (Issues / Suggestions) ──────────────────────────────── */
+.detail-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.detail-icon { font-size: 1.1rem; }
+
+.detail-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.detail-list li {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  padding: 0.7rem 1rem;
+  border-radius: var(--radius-sm);
+  border-left: 3px solid transparent;
+  background: rgba(255,255,255,0.03);
+  transition: background 0.15s;
+  line-height: 1.5;
+}
+
+.detail-list li:hover { background: rgba(255,255,255,0.055); }
+
+/* Issues get a red left border, suggestions get a blue one */
+.issues-list li {
+  border-left-color: #f85149;
+  color: #cdd9e5;
+}
+
+.suggestions-list li {
+  border-left-color: var(--accent-blue);
+  color: #cdd9e5;
+}
+
+/* ── 13.  FOOTER ────────────────────────────────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.footer-logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  opacity: 0.7;
+  margin-bottom: 0.2rem;
+}
+
+.footer-brand {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+}
+
+/* ── 14.  ANALYSIS BADGE ──────────────────────────────────────────────────── */
+.analysis-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  background: rgba(88,166,255,0.06);
+  border: 1px solid rgba(88,166,255,0.2);
+  border-radius: var(--radius-md);
+  padding: 0.6rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.badge-logo {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+/* ── 15.  DETAIL ANALYSIS SECTION ──────────────────────────────────────────── */
+.details-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+  animation: fadeIn 0.35s ease;
+}
+
+.detail-analysis-card {
+  padding: 1.5rem;
+}
+
+.detail-analysis-title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  letter-spacing: 0.01em;
+}
+
+.detail-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.detail-table tr {
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  transition: background 0.15s;
+}
+
+.detail-table tr:last-child {
+  border-bottom: none;
+}
+
+.detail-table tr:hover {
+  background: rgba(255,255,255,0.03);
+}
+
+.detail-label {
+  color: var(--text-secondary);
+  padding: 0.55rem 0.75rem 0.55rem 0;
+  width: 44%;
+  vertical-align: top;
+  font-weight: 500;
+}
+
+.detail-value {
+  color: var(--text-primary);
+  padding: 0.55rem 0;
+  word-break: break-all;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+}
+
+.detail-row-good .detail-label,
+.detail-row-good .detail-value {
+  color: var(--low-text);
+}
+
+.detail-row-bad .detail-label {
+  color: var(--text-secondary);
+}
+
+.detail-row-bad .detail-value {
+  color: var(--high-text);
+}
+
+/* ── 16.  RESPONSIVE ────────────────────────────────────────────────────────── */
+@media (max-width: 560px) {
+  .input-row    { flex-direction: column; }
+  .btn-scan     { width: 100%; justify-content: center; }
+  .score-top    { flex-direction: column; align-items: center; text-align: center; }
+  .score-meta   { align-items: center; }
+  .scanned-url  { text-align: center; }
+  .status-badge { justify-content: center; }
+  .gauge-wrapper { width: 140px; height: 140px; }
+  .score-number { font-size: 2rem; }
+}
