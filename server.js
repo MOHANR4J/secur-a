@@ -84,7 +84,7 @@ app.post('/check-security', async (req, res) => {
   // ── 4b. Launch Puppeteer ───────────────────────────────────────────────────
   let browser;
   try {
-    browser = await puppeteer.launch({
+    const launchOptions = {
       headless: true,
       args: [
         '--no-sandbox',
@@ -97,12 +97,77 @@ app.post('/check-security', async (req, res) => {
         '--window-position=-10000,-10000',  // Move off-screen completely
         '--window-size=1,1',                // Tiny window size as extra safety
       ]
-    });
+    };
+
+    // Auto-detect executable path on Render / Docker environments
+    if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+      const fs = require('fs');
+      if (fs.existsSync(process.env.PUPPETEER_EXECUTABLE_PATH)) {
+        launchOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+      }
+    }
+
+    if (!launchOptions.executablePath) {
+      const fs = require('fs');
+      // If we are deploying using the build script render-build.sh, Chrome is installed in the cache directory
+      const cacheDir = process.env.PUPPETEER_CACHE_DIR || '/opt/render/project/.cache/puppeteer';
+      if (fs.existsSync(cacheDir)) {
+        // Recursively locate a chrome executable inside the cache directory
+        const findChromeBinary = (dir) => {
+          const files = fs.readdirSync(dir);
+          for (const file of files) {
+            const fullPath = path.join(dir, file);
+            const stat = fs.statSync(fullPath);
+            if (stat.isDirectory()) {
+              const found = findChromeBinary(fullPath);
+              if (found) return found;
+            } else if (file === 'chrome' || file === 'chrome-linux64' || file === 'chrome-linux') {
+              // Ensure it's executable
+              try {
+                fs.accessSync(fullPath, fs.constants.X_OK);
+                return fullPath;
+              } catch {
+                // Not executable or access issue
+              }
+            }
+          }
+          return null;
+        };
+
+        try {
+          const cachedChrome = findChromeBinary(cacheDir);
+          if (cachedChrome) {
+            console.log('Found cached Chrome executable at:', cachedChrome);
+            launchOptions.executablePath = cachedChrome;
+          }
+        } catch (err) {
+          console.error('Error walking cache directory:', err.message);
+        }
+      }
+    }
+
+    // Additional common fallbacks
+    if (!launchOptions.executablePath && process.env.RENDER) {
+      const fs = require('fs');
+      const commonPaths = [
+        '/usr/bin/google-chrome-stable',
+        '/usr/bin/chromium',
+        '/usr/bin/chromium-browser'
+      ];
+      for (const p of commonPaths) {
+        if (fs.existsSync(p)) {
+          launchOptions.executablePath = p;
+          break;
+        }
+      }
+    }
+
+    browser = await puppeteer.launch(launchOptions);
   } catch (err) {
     console.error('Puppeteer launch error:', err.message);
     return res.status(200).json(makeResponse(0,
       ['Failed to launch the headless browser for analysis.'],
-      ['Ensure Puppeteer is installed correctly: npm install puppeteer']
+      ['Ensure Puppeteer is installed correctly or re-deploy the service.']
     ));
   }
 
