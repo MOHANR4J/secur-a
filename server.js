@@ -165,10 +165,26 @@ app.post('/check-security', async (req, res) => {
     browser = await puppeteer.launch(launchOptions);
   } catch (err) {
     console.error('Puppeteer launch error:', err.message);
-    return res.status(200).json(makeResponse(0,
-      ['Failed to launch the headless browser for analysis.'],
-      ['Ensure Puppeteer is installed correctly or re-deploy the service.']
-    ));
+    return res.status(200).json({
+      score: 0,
+      status: 'High Risk',
+      issues: ['Failed to launch the headless browser for analysis.'],
+      suggestions: [`Error: ${err.message}`],
+      details: {
+        error: err.message,
+        stack: err.stack,
+        env: {
+          NODE_ENV: process.env.NODE_ENV,
+          PORT: process.env.PORT,
+          RENDER: process.env.RENDER,
+          PUPPETEER_EXECUTABLE_PATH: process.env.PUPPETEER_EXECUTABLE_PATH,
+          PUPPETEER_CACHE_DIR: process.env.PUPPETEER_CACHE_DIR,
+          PATH: process.env.PATH,
+          USER: process.env.USER,
+          HOME: process.env.HOME
+        }
+      }
+    });
   }
 
   // ── 4c. Run the analysis ───────────────────────────────────────────────────
